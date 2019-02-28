@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/rs/cors"
+	//"github.com/gorilla/mux"
 )
 
 type jobs struct {
@@ -34,22 +35,21 @@ func main() {
 	defer Session.Close()
 
 
+
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:4200"},
+		AllowedOrigins: []string{"*"},
 	})
 
-
-
-
-
-
 /*
+
 	if err := Session.Query(`INSERT INTO register.urls (id,url,status) VALUES (?, ?, ?)`,
 		1,"www.instagram.com", "DONE").Exec(); err != nil {
 		log.Fatal(err)
 	}
 
 */
+
+
 
 	iter := Session.Query(`SELECT * FROM register.urls`).Iter()
 	iter2 := Session.Query(`SELECT * FROM register.urls`).Iter()
@@ -64,7 +64,7 @@ func main() {
 	var j=0;
 	for iter2.Scan(&id, &url, &status) {
 
-		fmt.Println("Id:", id, "Url:", url, "Status:", status)
+		//fmt.Println("Id:", id, "Url:", url, "Status:", status)
 
 		jobsList[j].Id=id
 		jobsList[j].Url=url
@@ -76,16 +76,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(jobsList);
 
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			u := jobsList
+			json.NewEncoder(w).Encode(u)
+		})
 
+		fs := http.FileServer(http.Dir("./api"))
+		http.Handle("/monitor/", http.StripPrefix("/monitor/", fs))
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u := jobsList
-		json.NewEncoder(w).Encode(u)
-	})
+		http.Handle("/get_jobs", c.Handler(handler))
 
-	http.ListenAndServe(":8080", c.Handler(handler))
+		fmt.Println("El servidor se encuentra en ejecución")
+		http.ListenAndServe(":8080", nil)
 
 
 }
