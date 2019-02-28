@@ -4,6 +4,7 @@ RUN apk update && apk upgrade && apk add --no-cache bash git
 RUN go get google.golang.org/grpc
 RUN go get github.com/gocql/gocql
 RUN go get github.com/thedevsaddam/renderer
+RUN go get github.com/rs/cors
 
 ENV SOURCES /app/
 COPY . ${SOURCES}
