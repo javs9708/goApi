@@ -12,16 +12,19 @@ import (
 )
 
 type jobs struct {
-	Id int
+	Id gocql.UUID
 	Url string
-	Status string
+	Status int
+	Retries int
+	Priority int
 }
 
 
-
+var id gocql.UUID
 var url string
-var id int
-var status string
+var status int
+var retries int
+var priority int
 
 func main() {
 	// Connect to the cluster.
@@ -51,24 +54,26 @@ func main() {
 
 
 
-	iter := Session.Query(`SELECT * FROM register.urls`).Iter()
-	iter2 := Session.Query(`SELECT * FROM register.urls`).Iter()
+	iter := Session.Query(`SELECT * FROM queue_buffer.jobs`).Iter()
+	iter2 := Session.Query(`SELECT * FROM queue_buffer.jobs`).Iter()
 
 	var i=0;
-	for iter.Scan(&id, &url, &status) {
+	for iter.Scan(&id, &url, &status, &retries, &priority) {
 		i++;
 	}
 
 	jobsList := make([]jobs, i)
 
 	var j=0;
-	for iter2.Scan(&id, &url, &status) {
+	for iter2.Scan(&id, &url, &status,&retries, &priority) {
 
-		//fmt.Println("Id:", id, "Url:", url, "Status:", status)
+		fmt.Println("Id:", id, "Url:", url, "Status:", status, "Retries:", retries, "Priority:", priority)
 
 		jobsList[j].Id=id
 		jobsList[j].Url=url
 		jobsList[j].Status=status
+		jobsList[j].Retries=retries
+		jobsList[j].Priority=priority
 		j++;
 	}
 
