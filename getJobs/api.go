@@ -28,7 +28,7 @@ var priority int
 
 func main() {
 	// Connect to the cluster.
-	cluster := gocql.NewCluster("192.168.233.128")
+	cluster := gocql.NewCluster("192.168.8.128")
 	// Use the same timeout as the Java driver.
 
 	cluster.Timeout = 12 * time.Second
@@ -93,7 +93,7 @@ func main() {
 		http.Handle("/get_jobs", c.Handler(handler))
 
 		fmt.Println("El servidor se encuentra en ejecución")
-		http.ListenAndServe(":8080", nil)
+		http.ListenAndServe(":9001", nil)
 
 
 }
